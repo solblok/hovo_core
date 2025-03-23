@@ -8,8 +8,9 @@ pub fn format_response(text: &str) -> String {
 }
 
 pub fn say(text: &str) {
-    Command::new("espeak")
-        .args(&["-v", "es", text]) 
-        .spawn()
-        .expect("Error ejecutando espeak");
+    Command::new("python3")
+        .arg("scripts/tts.py")
+        .arg(text)
+        .status()
+        .expect("Error ejecutando TTS en Python");
 }

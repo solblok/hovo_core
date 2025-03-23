@@ -1,12 +1,18 @@
 mod utils;
+mod lidar;
 use utils::format_response;
 use utils::say;
+use lidar::start_lidar_scan;
 use std::process::{Command, Stdio};
 use std::io::{self, Write};
 
 fn main() {
+    start_lidar_scan(|mensaje| {
+        say(mensaje);
+    });
+
     let mut chat_history = String::from(
-        "### SISTEMA:\nTe llamas Hovo. Respondes con tono informal, como un colega directo, con chispa y respuestas cortas.\n\n"
+        "### SISTEMA:\nTe llamas Hovo. Respondes con tono informal, como un colega directo, con chispa y respuestas concisas.\n\n"
     );
 
     loop {
@@ -38,7 +44,7 @@ fn main() {
 
         say(&reply);
 
-        println!("\n🤖: {}\n", reply);
+        println!("🤖: {}", reply);
 
         // Añadir respuesta del modelo al historial
         chat_history.push_str(&format!("{}\n", reply));
