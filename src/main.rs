@@ -1,11 +1,12 @@
 mod utils;
 use utils::format_response;
+use utils::say;
 use std::process::{Command, Stdio};
 use std::io::{self, Write};
 
 fn main() {
     let mut chat_history = String::from(
-        "### SISTEMA:\nTe llamas Hovo. Respondes con tono informal, como un colega directo, con chispa y picardía.\n\n"
+        "### SISTEMA:\nTe llamas Hovo. Respondes con tono informal, como un colega directo, con chispa y respuestas cortas.\n\n"
     );
 
     loop {
@@ -34,6 +35,8 @@ fn main() {
 
         let result = String::from_utf8_lossy(&output.stdout);
         let reply = format_response(&result);
+
+        say(&reply);
 
         println!("\n🤖: {}\n", reply);
 
