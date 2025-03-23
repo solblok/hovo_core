@@ -6,11 +6,7 @@ use rand::seq::SliceRandom;
 
 fn random_greeting() -> &'static str {
     let frases = [
-        "¡Eh tú, tigre! ¿Vienes a contarme algo interesante o qué?",
-        "¿Qué pasa, boss? ¿Quién se acerca por ahí?",
-        "Qué susto, tronco! Avisa antes de aparecer así de la nada.",
-        "¡Chavalote! Ya te estaba oliendo desde lejos.",
-        "¿Vienes a liarla o solo a mirar, niño?"
+        "¡Pero bueno, si ahí está mi colega! Ya te estaba oliendo desde lejos.",
     ];
     let mut rng = rand::thread_rng();
     frases.choose(&mut rng).unwrap()
@@ -35,9 +31,7 @@ where
 
     thread::spawn(move || {
         loop {
-            let distance = read_lidar_front();
-
-            if distance < 1.5 {
+            if distance < 1000.0 {
                 greet(random_greeting());
                 thread::sleep(Duration::from_secs(5)); // Pausa para no greet en bucle
             }
