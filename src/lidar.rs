@@ -1,5 +1,6 @@
 use std::{thread, time::Duration};
 use std::sync::{Arc, Mutex};
+use std::process::Command;
 use rand::Rng;
 use rand::seq::SliceRandom;
 
@@ -17,8 +18,12 @@ fn random_greeting() -> &'static str {
 
 // Simulación: esta función debería conectarse al sensor real (ej. por serial o USB)
 pub fn read_lidar_front() -> f32 {
-    let mut rng = rand::thread_rng();
-    rng.gen_range(0.5..3.5)
+    let output = Command::new("python3")
+        .arg("scripts/lidar_reader.py") // o la ruta donde tengas el script
+        .output()
+        .expect("Error ejecutando lidar_reader.py");
+    let result = String::from_utf8_lossy(&output.stdout);
+    result.trim().parse::<f32>().unwrap_or(9999.0)
 }
 
 // Lanza un saludo si detecta algo cerca
