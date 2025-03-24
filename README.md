@@ -13,3 +13,8 @@ cd llama.cpp && mkdir build && cd build
 cmake .. -DLLAMA_NATIVE=ON
 cmake --build . --config Release
 ```
+
+### 4. Run python server
+```bash
+uvicorn scripts.embed_server:app --reload --port 8000
+```
