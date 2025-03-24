@@ -63,7 +63,7 @@ fn main() {
                 "--threads",
                 "8",
                 "--temp",
-                "0.1",
+                "0.7",
                 "models/hovo-0-6-gemma-q8.gguf",
                 &prompt_final,
             ])
@@ -76,6 +76,8 @@ fn main() {
 
         say(&reply);
         println!("🤖: {}", reply);
+
+        println!("{}", prompt_final);
 
         // 5️⃣ Añadir respuesta al historial
         chat_history.push_str(&format!("### Human: {}\n", input));

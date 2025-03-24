@@ -1,5 +1,4 @@
 use crate::rag::ingestion::Chunk;
-use std::collections::HashMap;
 
 /// Cada elemento del vector store tiene su chunk original + su embedding
 #[derive(Debug, Clone)]

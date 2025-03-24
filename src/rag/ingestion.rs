@@ -4,6 +4,7 @@ use std::path::Path;
 
 #[derive(Debug, Clone)]
 pub struct Chunk {
+    #[allow(dead_code)]
     pub id: String,
     pub content: String,
 }

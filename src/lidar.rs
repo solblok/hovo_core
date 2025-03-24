@@ -1,8 +1,7 @@
-use std::{thread, time::Duration};
-use std::sync::{Arc, Mutex};
-use std::process::Command;
-use rand::Rng;
 use rand::seq::SliceRandom;
+use std::process::Command;
+use std::sync::Arc;
+use std::{thread, time::Duration};
 
 fn random_greeting() -> &'static str {
     let frases = [
@@ -10,7 +9,7 @@ fn random_greeting() -> &'static str {
         "¿Qué pasa, boss? ¿Quién se acerca por ahí?",
         "Qué susto, tronco! Avisa antes de aparecer así de la nada.",
         "¡Chavalote! Ya te estaba oliendo desde lejos.",
-        "¿Vienes a liarla o solo a mirar, niño?"
+        "¿Vienes a liarla o solo a mirar, niño?",
     ];
     let mut rng = rand::thread_rng();
     frases.choose(&mut rng).unwrap()
