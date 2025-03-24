@@ -27,6 +27,33 @@ pub fn start_embedding_server() {
     }
 }
 
+pub fn start_whisper_server() {
+    let result = Command::new("uvicorn")
+        .arg("scripts.whisper_server:app")
+        .arg("--host")
+        .arg("127.0.0.1")
+        .arg("--port")
+        .arg("8001")
+        .arg("--reload")
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .spawn();
+
+    match result {
+        Ok(child) => {
+            println!(
+                "🧠 Servidor de Whisper lanzado vía uvicorn (PID: {})",
+                child.id()
+            );
+            std::thread::sleep(std::time::Duration::from_secs(1)); // espera a que arranque
+        }
+        Err(e) => {
+            eprintln!("💥 Error al lanzar servidor Whisper: {}", e);
+        }
+    }
+}
+
+
 pub fn format_response(text: &str) -> String {
     let no_emoji = Regex::new(r"[^\p{L}\p{N}\p{P}\p{Zs}\n]")
         .unwrap()

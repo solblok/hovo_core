@@ -34,6 +34,7 @@ where
 
     thread::spawn(move || {
         loop {
+            let distance = read_lidar_front();
             if distance < 1000.0 {
                 greet(random_greeting());
                 thread::sleep(Duration::from_secs(5)); // Pausa para no greet en bucle
