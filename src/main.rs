@@ -12,9 +12,10 @@ use rag::ingestion::load_chunks_from_file;
 use rag::vector_store::VectorStore;
 use std::io::{self, Write};
 use std::process::{Command, Stdio};
-use utils::{format_response, say};
+use utils::{format_response, say, start_embedding_server};
 
 fn main() {
+    start_embedding_server();
     start_lidar_scan(|mensaje| {
         say(mensaje);
     });
@@ -76,8 +77,6 @@ fn main() {
 
         say(&reply);
         println!("🤖: {}", reply);
-
-        println!("{}", prompt_final);
 
         // 5️⃣ Añadir respuesta al historial
         chat_history.push_str(&format!("### Human: {}\n", input));
