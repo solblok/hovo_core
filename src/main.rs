@@ -1,4 +1,5 @@
 mod lidar;
+mod speech;
 mod utils;
 mod rag {
     pub mod embeddings;
@@ -10,6 +11,7 @@ use lidar::start_lidar_scan;
 use rag::embeddings::get_embedding;
 use rag::ingestion::load_chunks_from_file;
 use rag::vector_store::VectorStore;
+use speech::{record_audio, transcribe_audio};
 use std::io::{self, Write};
 use std::process::{Command, Stdio};
 use utils::{format_response, say, start_embedding_server};
@@ -35,17 +37,38 @@ fn main() {
     );
 
     loop {
-        print!("💬: ");
+        println!("¿Texto o voz? [t/v]: ");
         io::stdout().flush().unwrap();
 
-        let mut prompt_user = String::new();
-        io::stdin().read_line(&mut prompt_user).unwrap();
-        let input = prompt_user.trim();
+        let mut mode = String::new();
+        io::stdin().read_line(&mut mode).unwrap();
+        let mode = mode.trim();
+
+        let input = if mode == "v" {
+            let audio_path = "audio/temp.wav";
+            record_audio(audio_path, 5);
+            match transcribe_audio(audio_path) {
+                Ok(text) => {
+                    println!("📝 Transcripción: {}", text);
+                    text
+                }
+                Err(e) => {
+                    eprintln!("Error en transcripción: {}", e);
+                    continue;
+                }
+            }
+        } else {
+            print!("💬: ");
+            io::stdout().flush().unwrap();
+            let mut prompt_user = String::new();
+            io::stdin().read_line(&mut prompt_user).unwrap();
+            prompt_user.trim().to_string()
+        };
 
         // 2️⃣ RAG: buscar chunks relevantes para esta pregunta
         let mut rag_context = String::new();
 
-        if let Ok(query_embedding) = get_embedding(input) {
+        if let Ok(query_embedding) = get_embedding(&input) {
             let top_chunks = vector_store.search_top_k(&query_embedding, 3);
             for item in top_chunks {
                 rag_context.push_str(&format!("{}\n", item.chunk.content));
