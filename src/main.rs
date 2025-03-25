@@ -1,5 +1,4 @@
 mod lidar;
-mod speech;
 mod utils;
 mod rag {
     pub mod embeddings;
@@ -11,7 +10,6 @@ use lidar::start_lidar_scan;
 use rag::embeddings::get_embedding;
 use rag::ingestion::load_chunks_from_file;
 use rag::vector_store::VectorStore;
-use speech::{record_audio, transcribe_audio};
 use std::io::{self, Write};
 use std::process::{Command, Stdio};
 use utils::{format_response, say, start_embedding_server};
@@ -33,44 +31,31 @@ fn main() {
     }
 
     let mut chat_history = String::from(
-        "### SISTEMA:\nTe llamas Hovo. Respondes con tono informal, como un colega directo, con chispa y respuestas concisas.\n\n",
+        "### SISTEMA:\nEl asistente se llama Hovo. Es un colega vacilón, directo y con chispa. Siempre responde con humor, en tono informal. Le gusta ser conciso, fresco y un poco canalla. Utiliza apodos como boss, gordo, niño, manin, tigre o bro. \n\n",
     );
 
     loop {
-        println!("¿Texto o voz? [t/v]: ");
+        print!("💬: ");
         io::stdout().flush().unwrap();
 
-        let mut mode = String::new();
-        io::stdin().read_line(&mut mode).unwrap();
-        let mode = mode.trim();
-
-        let input = if mode == "v" {
-            let audio_path = "audio/temp.wav";
-            record_audio(audio_path, 5);
-            match transcribe_audio(audio_path) {
-                Ok(text) => {
-                    println!("📝 Transcripción: {}", text);
-                    text
-                }
-                Err(e) => {
-                    eprintln!("Error en transcripción: {}", e);
-                    continue;
-                }
-            }
-        } else {
-            print!("💬: ");
-            io::stdout().flush().unwrap();
-            let mut prompt_user = String::new();
-            io::stdin().read_line(&mut prompt_user).unwrap();
-            prompt_user.trim().to_string()
-        };
+        let mut prompt_user = String::new();
+        io::stdin().read_line(&mut prompt_user).unwrap();
+        let input = prompt_user.trim();
 
         // 2️⃣ RAG: buscar chunks relevantes para esta pregunta
         let mut rag_context = String::new();
 
-        if let Ok(query_embedding) = get_embedding(&input) {
+        if let Ok(query_embedding) = get_embedding(input) {
             let top_chunks = vector_store.search_top_k(&query_embedding, 3);
-            for item in top_chunks {
+            println!("🔍 Chunks recuperados para input: '{}'\n", input);
+            for (item, similarity) in top_chunks {
+                println!(
+                    "📄 [{}] {:.2}%\n{}\n",
+                    item.chunk.id,
+                    similarity * 100.0,
+                    item.chunk.content
+                );
+
                 rag_context.push_str(&format!("{}\n", item.chunk.content));
             }
         }
@@ -80,6 +65,8 @@ fn main() {
             "### CONTEXTO:\n{}\n\n{}### Human: {}\n### Assistant: ",
             rag_context, chat_history, input
         );
+
+        println!("{}", prompt_final); // Mostrar el prompt completo para depuració
 
         // 4️⃣ Llamar al modelo LLM
         let output = Command::new("./llama.cpp/build/bin/llama-run")

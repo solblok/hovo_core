@@ -9,9 +9,12 @@ from pydub.playback import play
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
 client = ElevenLabs(api_key="sk_436d68db1001539003a3645cf5f418870e2dbb88aec027c8")
 
+voice_1 = "MVE1ueDWDIdoIS3VEQXS"
+voice_2 = "PBaBRSRTvwmnK1PAq9e0"
+
 def text_to_speech_stream(text: str) -> BytesIO:
     response = client.text_to_speech.convert(
-        voice_id="MVE1ueDWDIdoIS3VEQXS",  # Cambia si usas otro
+        voice_id=voice_1,
         output_format="mp3_22050_32",
         text=text,
         model_id="eleven_multilingual_v2",
@@ -20,7 +23,7 @@ def text_to_speech_stream(text: str) -> BytesIO:
             similarity_boost=0.8,
             style=0.2,
             use_speaker_boost=True,
-            speed=0.8,
+            speed=0.85,
         ),
     )
 

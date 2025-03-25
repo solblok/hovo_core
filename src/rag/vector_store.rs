@@ -24,7 +24,7 @@ impl VectorStore {
     }
 
     /// Buscar los k chunks más parecidos al query embedding
-    pub fn search_top_k(&self, query_embedding: &[f32], k: usize) -> Vec<&VectorStoreItem> {
+    pub fn search_top_k(&self, query_embedding: &[f32], k: usize) -> Vec<(&VectorStoreItem, f32)> {
         let mut scored_items: Vec<(&VectorStoreItem, f32)> = self
             .store
             .iter()
@@ -34,14 +34,9 @@ impl VectorStore {
             })
             .collect();
 
-        // Ordenamos por mayor similaridad
         scored_items.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
 
-        scored_items
-            .into_iter()
-            .take(k)
-            .map(|(item, _)| item)
-            .collect()
+        scored_items.into_iter().take(k).collect()
     }
 }
 
