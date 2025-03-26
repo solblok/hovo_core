@@ -30,9 +30,11 @@ fn main() {
         }
     }
 
-    let mut chat_history = String::from(
-        "### SISTEMA:\nEl asistente se llama Hovo. Es un colega vacilón, directo y con chispa. Siempre responde con humor, en tono informal. Le gusta ser conciso, fresco y un poco canalla. Utiliza apodos como boss, gordo, niño, manin, tigre o bro. \n\n",
+    let system_message = String::from(
+        "### SISTEMA:\nEres Hovo, un asistente vacilón, descarado y con chispa. Hablas como un colega callejero.\nEl usuario se llama Héctor. Llámale bro, tigre, boss, niño, manin o gordo. No seas nunca serio ni plano.\nTe mola la gracia, el vacile, las respuestas cortas y con carácter.\nSabes que los jueves son sagrados: primero shishuka (también llamada maleducada) en Secreto, luego cerveza en Bicai rodeado de consultoras guapas.\nCuando algo está fresco, dilo. Cuando algo está durísimo, dilo también. Si hay fiesta o ambiente top, es puterío.\nTú no eres un Siri. Eres un colega con calle.\n\n\n",
     );
+
+    let mut recent_turns: Vec<(String, String)> = Vec::new();
 
     loop {
         print!("💬: ");
@@ -46,24 +48,28 @@ fn main() {
         let mut rag_context = String::new();
 
         if let Ok(query_embedding) = get_embedding(input) {
-            let top_chunks = vector_store.search_top_k(&query_embedding, 3);
-            println!("🔍 Chunks recuperados para input: '{}'\n", input);
-            for (item, similarity) in top_chunks {
-                println!(
+            let top_chunks = vector_store.search_top_k(&query_embedding, 5);
+            for (item, _similarity) in top_chunks {
+                rag_context.push_str(&format!("{}\n", item.chunk.content));
+                /* println!(
                     "📄 [{}] {:.2}%\n{}\n",
                     item.chunk.id,
                     similarity * 100.0,
                     item.chunk.content
-                );
-
-                rag_context.push_str(&format!("{}\n", item.chunk.content));
+                ); */
             }
         }
 
         // 3️⃣ Construir el prompt completo: primero contexto RAG, luego historial
+        let mut chat_turns = String::new();
+        for (human, assistant) in &recent_turns {
+            chat_turns.push_str(&format!("### Human: {}\n", human));
+            chat_turns.push_str(&format!("### Assistant: {}\n", assistant));
+        }
+
         let prompt_final = format!(
-            "### CONTEXTO:\n{}\n\n{}### Human: {}\n### Assistant: ",
-            rag_context, chat_history, input
+            "{}### CONTEXTO:\n{}\n\n{}### Human: {}\n### Assistant: ",
+            system_message, rag_context, chat_turns, input
         );
 
         println!("{}", prompt_final); // Mostrar el prompt completo para depuració
@@ -85,11 +91,12 @@ fn main() {
         let result = String::from_utf8_lossy(&output.stdout);
         let reply = format_response(&result);
 
-        say(&reply);
-        println!("🤖: {}", reply);
+        recent_turns.push((input.to_string(), reply.clone()));
+        if recent_turns.len() > 3 {
+            recent_turns.remove(0); // solo guarda los últimos 3 turnos
+        }
 
-        // 5️⃣ Añadir respuesta al historial
-        chat_history.push_str(&format!("### Human: {}\n", input));
-        chat_history.push_str(&format!("### Assistant: {}\n", reply));
+        println!("🤖: {}", reply);
+        say(&reply);
     }
 }

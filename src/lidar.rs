@@ -33,7 +33,6 @@ where
     let greet = Arc::new(greet);
 
     thread::spawn(move || {
-        let distance = read_lidar_front();
         loop {
             let distance = read_lidar_front();
             if distance < 1000.0 {
