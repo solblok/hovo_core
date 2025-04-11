@@ -1,3 +1,4 @@
+import socket
 import face_recognition
 import cv2
 import numpy as np
@@ -5,7 +6,7 @@ import numpy as np
 video_capture = cv2.VideoCapture(0)
 
 # Load a sample picture and learn how to recognize it.
-obama_image = face_recognition.load_image_file("dataset/faces/hector.png")
+obama_image = face_recognition.load_image_file("dataset/faces/hector.jpg")
 obama_face_encoding = face_recognition.face_encodings(obama_image)[0]
 
 # Load a second sample picture and learn how to recognize it.
@@ -55,6 +56,13 @@ while True:
             best_match_index = np.argmin(face_distances)
             if matches[best_match_index]:
                 name = known_face_names[best_match_index]
+                if name == "Héctor":
+                    try:
+                        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                            s.connect(("127.0.0.1", 5005))
+                            s.sendall(b"HECTOR_DETECTED")
+                    except Exception as e:
+                        print("Error sending message:", e)
 
             face_names.append(name)
 

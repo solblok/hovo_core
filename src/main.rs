@@ -12,10 +12,15 @@ use rag::ingestion::load_chunks_from_file;
 use rag::vector_store::VectorStore;
 use std::io::{self, Write};
 use std::process::{Command, Stdio};
-use utils::{format_response, say, start_embedding_server};
+use utils::{format_response, say, start_embedding_server, start_face_listener};
 
 fn main() {
     start_embedding_server();
+    start_face_listener();
+    Command::new("python3")
+        .arg("scripts/face_recognizer.py")
+        .spawn()
+        .expect("No se pudo lanzar face_recognizer.py");
     start_lidar_scan(|mensaje| {
         say(mensaje);
     });

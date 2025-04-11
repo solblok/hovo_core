@@ -7,7 +7,7 @@ from pydub import AudioSegment
 from pydub.playback import play
 
 ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
-client = ElevenLabs(api_key="sk_436d68db1001539003a3645cf5f418870e2dbb88aec027c8")
+client = ElevenLabs(api_key="sk_7c00b2764db8c2c2e58f62518d33bcaf1fec4b2d62b9e20d")
 
 voice_1 = "MVE1ueDWDIdoIS3VEQXS"
 voice_2 = "PBaBRSRTvwmnK1PAq9e0"
